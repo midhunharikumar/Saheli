@@ -100,8 +100,8 @@ class UploadUtility(activity: Activity) {
 
     var activity = activity;
     var dialog: ProgressDialog? = null
-    var serverURL: String = "https://handyopinion.com/tutorials/UploadToServer.php"
-    var serverUploadDirectoryPath: String = "https://handyopinion.com/tutorials/uploads/"
+    var serverURL: String = "http://10.0.0.10:8000/uploadfile"
+    var serverUploadDirectoryPath: String = "http://10.0.0.10:8000/uploadfile"
     val client = OkHttpClient()
 
     fun uploadFile(sourceFilePath: String, uploadedFileName: String? = null) {
@@ -114,7 +114,7 @@ class UploadUtility(activity: Activity) {
     }
 
     fun uploadFile(sourceFile: File, uploadedFileName: String? = null) {
-        Thread {
+        var thread = Thread {
             val mimeType = getMimeType(sourceFile);
             if (mimeType == null) {
                 Log.e("file error", "Not able to get mime type")
@@ -125,7 +125,7 @@ class UploadUtility(activity: Activity) {
             try {
                 val requestBody: RequestBody =
                     MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("uploaded_file", fileName,sourceFile.asRequestBody(mimeType.toMediaTypeOrNull()))
+                        .addFormDataPart("file", fileName,sourceFile.asRequestBody(mimeType.toMediaTypeOrNull()))
                         .build()
 
                 val request: Request = Request.Builder().url(serverURL).post(requestBody).build()
@@ -145,7 +145,9 @@ class UploadUtility(activity: Activity) {
                 showToast("File uploading failed")
             }
             toggleProgressDialog(false)
-        }.start()
+        }
+        thread.start()
+        thread.join()
     }
 
     // url = file path or whatever suitable URL you want.
